@@ -1,18 +1,13 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { SiteFooter, SiteHeader } from "@/components/site-chrome";
 
 export const metadata: Metadata = {
-  title: "Journaway — Travel, remembered.",
-  description: "A quieter way to collect the moments that make a journey yours.",
-  icons: { icon: "/favicon.svg", shortcut: "/favicon.svg" },
-  openGraph: {
-    title: "Journaway — Travel, remembered.",
-    description: "A quieter way to collect the moments that make a journey yours.",
-    images: [{ url: "/og.png", width: 1800, height: 1000, alt: "Journaway — Travel, remembered." }],
-  },
-  twitter: { card: "summary_large_image", title: "Journaway — Travel, remembered.", images: ["/og.png"] },
+  title: "JournAway | Travel India, your way",
+  description: "Discover tour packages, road trips, vehicle rentals and thoughtful travel planning across India.",
+  openGraph: { title: "JournAway | Travel India, your way", description: "Travel India with trusted local support.", images: ["/og.png"] },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en"><body>{children}</body></html>;
+  return <html lang="en"><body><SiteHeader />{children}<SiteFooter /></body></html>;
 }
