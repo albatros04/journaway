@@ -1,0 +1,3 @@
+import { GoogleSignIn } from "@/components/google-sign-in";
+
+export default async function LoginPage({ searchParams }: { searchParams: Promise<{ return_to?: string }> }) { const { return_to } = await searchParams; const returnTo = return_to?.startsWith("/") && !return_to.startsWith("//") ? return_to : "/account"; return <main className="auth-page"><div className="auth-card auth-google-card"><a href="/" className="brand brand-logo auth-logo"><img src="/journaway-logo-transparent.png" alt="JournAway" width="1260" height="790" /></a><p className="eyebrow">JournAway account</p><h1>Welcome to your next journey.</h1><p>Sign in to save custom trips and see your JournAway travel requests.</p><GoogleSignIn returnTo={returnTo} /></div></main>; }

@@ -1,0 +1,1 @@
+ALTER TABLE `tour_packages` ADD `price_inr` integer DEFAULT 0 NOT NULL;
