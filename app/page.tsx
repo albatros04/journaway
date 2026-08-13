@@ -1,10 +1,11 @@
 import { JourneySearch } from "@/components/forms";
 import { DestinationCard, TourCard, Button } from "@/components/ui";
 import { destinations, services, showcaseTours } from "@/components/site-data";
+import { CinematicHero } from "@/components/cinematic-hero";
 
 export default function Home() {
   return <main>
-    <section className="home-hero"><div className="container hero-content"><p className="eyebrow light">Travel India with confidence</p><h1>India, <em>your way.</em></h1><p>From sacred yatras and family holidays to spirited road trips—discover Bharat with thoughtful planning and dependable local support.</p><div className="button-row"><Button href="/tours">Explore packages</Button><Button href="/vehicle-rental" variant="secondary">Browse vehicles</Button></div></div><p className="hero-route">Kashmir <span>→</span> Kanyakumari</p></section>
+    <CinematicHero />
     <div className="container search-overlap"><JourneySearch /></div>
     <section className="section container intro-split"><div><p className="eyebrow">Your travel partner</p><h2>Every mile, made <em>easy.</em></h2></div><div><p>JournAway brings tours, road travel and accommodation planning into one clear process—so the journey can feel personal from the first idea to the final return.</p><Button href="/about-us" variant="ghost">Meet JournAway</Button></div></section>
     <section className="section section-soft"><div className="container"><div className="section-title"><div><p className="eyebrow">Curated routes</p><h2>Journeys worth taking.</h2></div><Button href="/tour-packages" variant="ghost">View all packages</Button></div><div className="tour-grid">{showcaseTours.map(tour => <TourCard tour={tour} key={tour.name} />)}</div></div></section>

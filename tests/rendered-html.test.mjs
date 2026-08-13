@@ -15,8 +15,9 @@ test("server-renders the JournAway travel homepage", async () => {
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
   const html = await response.text();
   assert.match(html, /<title>JournAway \| Travel India, your way<\/title>/i);
-  assert.match(html, /India, <em>your way\.<\/em>/i);
-  assert.match(html, /Explore packages/);
+  assert.match(html, /Find your next/i);
+  assert.match(html, /Explore tours/);
+  assert.match(html, /journaway-logo\.png/);
   assert.match(html, /Leh Ladakh Explorer/);
   assert.match(html, /Travel &amp; Tour Planning/);
   assert.doesNotMatch(html, /codex-preview|Building your site|react-loading-skeleton/i);
@@ -30,9 +31,12 @@ test("keeps the travel system centralized and route-aware", async () => {
     readFile(new URL("../components/site-data.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/services/[service]/page.tsx", import.meta.url), "utf8"),
   ]);
-  assert.match(styles, /--bg:#f7f5f0/);
-  assert.match(styles, /--forest:#1f4032/);
+  assert.match(styles, /--bg:#f6f4ec/);
+  assert.match(styles, /--forest:#163a2b/);
   assert.match(styles, /--terracotta:#d66a3a/);
+  assert.match(styles, /--green:#2f6b4f/);
+  assert.match(styles, /--sage:#91a98d/);
+  assert.match(styles, /--mint:#dde9df/);
   assert.match(styles, /prefers-reduced-motion:reduce/);
   assert.match(styles, /@media \(max-width:720px\)/);
   assert.match(header, /aria-label="Main navigation"/);
