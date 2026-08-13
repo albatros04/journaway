@@ -10,7 +10,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ bo
   try {
     const { bookingId } = await params;
     const body = await request.json() as { status?: string };
-    const booking = await getOperationsDb().select({ booking: hotelBookings }).from(hotelBookings).innerJoin(hotelPartnerMemberships, and(eq(hotelBookings.propertyId, hotelPartnerMemberships.propertyId), eq(hotelPartnerMemberships.userId, actor.userId))).where(eq(hotelBookings.id, bookingId)).get();
+    const [booking] = await getOperationsDb().select({ booking: hotelBookings }).from(hotelBookings).innerJoin(hotelPartnerMemberships, and(eq(hotelBookings.propertyId, hotelPartnerMemberships.propertyId), eq(hotelPartnerMemberships.userId, actor.userId))).where(eq(hotelBookings.id, bookingId)).limit(1);
     if (!booking) return Response.json({ error: "Booking not found." }, { status: 404 });
     if (!body.status || !nextStatuses[booking.booking.status].includes(body.status as never)) return Response.json({ error: "That booking status transition is not allowed." }, { status: 400 });
     const [updatedBooking] = await getOperationsDb().update(hotelBookings).set({ status: body.status as "checked_in" | "checked_out" | "cancelled", updatedAt: new Date().toISOString() }).where(eq(hotelBookings.id, bookingId)).returning();

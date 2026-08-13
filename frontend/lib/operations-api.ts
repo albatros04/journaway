@@ -19,7 +19,7 @@ export function isErrorResponse(value: unknown): value is Response {
 export function jsonError(error: unknown): Response {
   console.error("Operations API error", error);
   return Response.json(
-    { error: "The operations service is unavailable. Confirm the D1 binding and apply the database migration." },
+    { error: "The operations service is unavailable. Confirm DATABASE_URL and apply the PostgreSQL migration." },
     { status: 503 },
   );
 }

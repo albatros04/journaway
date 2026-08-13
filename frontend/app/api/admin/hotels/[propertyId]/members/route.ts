@@ -12,7 +12,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ pro
     const email = requiredText(body.email, "email", 160);
     const role = body.role === "manager" ? "manager" : "owner";
     if (isErrorResponse(userId) || isErrorResponse(email)) return isErrorResponse(userId) ? userId : email;
-    if (!await getOperationsDb().select({ id: hotelProperties.id }).from(hotelProperties).where(eq(hotelProperties.id, propertyId)).get()) return Response.json({ error: "Property not found." }, { status: 404 });
+    const [property] = await getOperationsDb().select({ id: hotelProperties.id }).from(hotelProperties).where(eq(hotelProperties.id, propertyId)).limit(1);
+    if (!property) return Response.json({ error: "Property not found." }, { status: 404 });
     const [membership] = await getOperationsDb().insert(hotelPartnerMemberships).values({ id: crypto.randomUUID(), propertyId, userId, email: email.toLowerCase(), role }).onConflictDoNothing().returning();
     return Response.json({ membership: membership ?? null }, { status: membership ? 201 : 200 });
   } catch (error) { return jsonError(error); }

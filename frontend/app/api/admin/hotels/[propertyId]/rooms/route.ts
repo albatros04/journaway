@@ -2,7 +2,7 @@ import { asc, eq } from "drizzle-orm";
 import { hotelProperties, hotelRooms } from "../../../../../../../backend/db/schema";
 import { getOperationsDb, isErrorResponse, jsonError, positiveInteger, requiredText, requireApiActor } from "@/lib/operations-api";
 
-async function propertyExists(propertyId: string) { return getOperationsDb().select({ id: hotelProperties.id }).from(hotelProperties).where(eq(hotelProperties.id, propertyId)).get(); }
+async function propertyExists(propertyId: string) { const [property] = await getOperationsDb().select({ id: hotelProperties.id }).from(hotelProperties).where(eq(hotelProperties.id, propertyId)).limit(1); return property; }
 
 export async function GET(_: Request, { params }: { params: Promise<{ propertyId: string }> }) {
   const actor = await requireApiActor("admin");

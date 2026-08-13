@@ -3,7 +3,8 @@ import { hotelPartnerMemberships, hotelRooms } from "../../../../../backend/db/s
 import { getOperationsDb, isErrorResponse, jsonError, positiveInteger, requiredText, requireApiActor } from "@/lib/operations-api";
 
 async function managesProperty(userId: string, propertyId: string) {
-  return getOperationsDb().select({ id: hotelPartnerMemberships.id }).from(hotelPartnerMemberships).where(and(eq(hotelPartnerMemberships.userId, userId), eq(hotelPartnerMemberships.propertyId, propertyId))).get();
+  const [membership] = await getOperationsDb().select({ id: hotelPartnerMemberships.id }).from(hotelPartnerMemberships).where(and(eq(hotelPartnerMemberships.userId, userId), eq(hotelPartnerMemberships.propertyId, propertyId))).limit(1);
+  return membership;
 }
 
 export async function GET() {

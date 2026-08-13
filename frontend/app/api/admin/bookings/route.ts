@@ -30,10 +30,12 @@ export async function POST(request: Request) {
     const invalid = values.find(isErrorResponse);
     if (invalid) return invalid;
     if (checkOutDate <= checkInDate) return Response.json({ error: "checkOutDate must be after checkInDate." }, { status: 400 });
-    if (!await getOperationsDb().select({ id: hotelProperties.id }).from(hotelProperties).where(eq(hotelProperties.id, propertyId)).get()) return Response.json({ error: "Property not found." }, { status: 404 });
-    if (roomId && !await getOperationsDb().select({ id: hotelRooms.id }).from(hotelRooms).where(eq(hotelRooms.id, roomId)).get()) return Response.json({ error: "Room not found." }, { status: 404 });
+    const [property] = await getOperationsDb().select({ id: hotelProperties.id }).from(hotelProperties).where(eq(hotelProperties.id, propertyId as string)).limit(1);
+    if (!property) return Response.json({ error: "Property not found." }, { status: 404 });
+    const [selectedRoom] = roomId ? await getOperationsDb().select({ id: hotelRooms.id }).from(hotelRooms).where(eq(hotelRooms.id, roomId)).limit(1) : [];
+    if (roomId && !selectedRoom) return Response.json({ error: "Room not found." }, { status: 404 });
     if (roomId) {
-      const room = await getOperationsDb().select({ propertyId: hotelRooms.propertyId }).from(hotelRooms).where(eq(hotelRooms.id, roomId)).get();
+      const [room] = await getOperationsDb().select({ propertyId: hotelRooms.propertyId }).from(hotelRooms).where(eq(hotelRooms.id, roomId)).limit(1);
       if (!room || room.propertyId !== propertyId) return Response.json({ error: "The room does not belong to this property." }, { status: 400 });
     }
     const [booking] = await getOperationsDb().insert(hotelBookings).values({ id: crypto.randomUUID(), bookingReference, propertyId, roomId, guestName, guestEmail, guestPhone, checkInDate, checkOutDate, adults, roomCount }).returning();

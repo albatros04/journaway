@@ -31,6 +31,8 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
+!frontend/.env.example
 
 # vercel
 .vercel
@@ -42,9 +44,11 @@ yarn-error.log*
 
 # Split application outputs
 /frontend/node_modules/
+**/node_modules/
 /frontend/.next/
 /frontend/.vinext/
 /frontend/dist/
 /frontend/.wrangler/
 /frontend/.vite/
 /.vite/
+*.tsbuildinfo

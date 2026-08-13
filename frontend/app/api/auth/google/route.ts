@@ -10,8 +10,8 @@ export async function POST(request: Request) {
     if (typeof body.credential !== "string" || body.credential.length > 10000) return Response.json({ error: "A Google sign-in credential is required." }, { status: 400 });
     const identity = await verifyGoogleIdToken(body.credential);
     const db = getOperationsDb();
-    const bySubject = await db.select().from(customers).where(eq(customers.googleSubject, identity.sub)).get();
-    const byEmail = bySubject ? undefined : await db.select().from(customers).where(eq(customers.email, identity.email.toLowerCase())).get();
+    const [bySubject] = await db.select().from(customers).where(eq(customers.googleSubject, identity.sub)).limit(1);
+    const [byEmail] = bySubject ? [] : await db.select().from(customers).where(eq(customers.email, identity.email.toLowerCase())).limit(1);
     if (byEmail && byEmail.googleSubject !== identity.sub) return Response.json({ error: "An account already exists for this email. Contact JournAway support to link it securely." }, { status: 409 });
     const displayName = identity.name?.trim() || identity.email;
     const customer = bySubject

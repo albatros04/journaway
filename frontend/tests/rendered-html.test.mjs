@@ -1,12 +1,21 @@
 import assert from "node:assert/strict";
+import { spawn } from "node:child_process";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
+import { fileURLToPath } from "node:url";
 
 async function render(path = "/") {
-  const workerUrl = new URL("../dist/server/index.js", import.meta.url);
-  workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}-${path}`);
-  const { default: worker } = await import(workerUrl.href);
-  return worker.fetch(new Request(`http://localhost${path}`, { headers: { accept: "text/html" } }), { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } }, { waitUntil() {}, passThroughOnException() {} });
+  const port = 3100 + (process.pid % 400);
+  const serverPath = new URL("../dist/standalone/server.js", import.meta.url);
+  const child = spawn(process.execPath, [fileURLToPath(serverPath)], { env: { ...process.env, HOST: "127.0.0.1", NODE_ENV: "production", PORT: String(port) }, stdio: "ignore" });
+  try {
+    let lastError;
+    for (let attempt = 0; attempt < 30; attempt += 1) {
+      try { return await fetch(`http://127.0.0.1:${port}${path}`, { headers: { accept: "text/html" } }); }
+      catch (error) { lastError = error; await new Promise(resolve => setTimeout(resolve, 100)); }
+    }
+    throw lastError;
+  } finally { child.kill(); }
 }
 
 test("server-renders the JournAway travel homepage", async () => {

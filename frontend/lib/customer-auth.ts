@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { and, eq, gt } from "drizzle-orm";
 import { customerSessions, customers } from "../../backend/db/schema";
-import { getOperationsDb } from "@/lib/operations-api";
+import { getDb } from "../../backend/db";
 
 const CUSTOMER_SESSION_COOKIE = "journaway_customer_session";
 const SESSION_DAYS = 14;
@@ -29,7 +29,7 @@ export async function getCustomerUser(): Promise<CustomerUser | null> {
   if (!token) return null;
   try {
     const tokenHash = await sha256(token);
-    const row = await getOperationsDb().select({ customer: customers }).from(customerSessions).innerJoin(customers, eq(customerSessions.customerId, customers.id)).where(and(eq(customerSessions.tokenHash, tokenHash), gt(customerSessions.expiresAt, new Date().toISOString()))).get();
+    const [row] = await getDb().select({ customer: customers }).from(customerSessions).innerJoin(customers, eq(customerSessions.customerId, customers.id)).where(and(eq(customerSessions.tokenHash, tokenHash), gt(customerSessions.expiresAt, new Date().toISOString()))).limit(1);
     return row ? { id: row.customer.id, email: row.customer.email, displayName: row.customer.displayName, profileImageUrl: row.customer.profileImageUrl, phone: row.customer.phone } : null;
   } catch { return null; }
 }
@@ -44,5 +44,5 @@ export async function clearCustomerSession(): Promise<void> {
   const cookieStore = await cookies();
   const token = cookieStore.get(CUSTOMER_SESSION_COOKIE)?.value;
   if (!token) return;
-  try { await getOperationsDb().delete(customerSessions).where(eq(customerSessions.tokenHash, await sha256(token))); } catch { /* Clear browser session even if persistent cleanup is unavailable. */ }
+  try { await getDb().delete(customerSessions).where(eq(customerSessions.tokenHash, await sha256(token))); } catch { /* Clear browser session even if persistent cleanup is unavailable. */ }
 }

@@ -6,7 +6,7 @@ export async function GET() {
   const actor = await requireApiActor("driver");
   if (isErrorResponse(actor)) return actor;
   try {
-    const profile = await getOperationsDb().select().from(driverProfiles).where(eq(driverProfiles.userId, actor.userId)).get();
+    const [profile] = await getOperationsDb().select().from(driverProfiles).where(eq(driverProfiles.userId, actor.userId)).limit(1);
     return Response.json({ profile: profile ?? null });
   } catch (error) { return jsonError(error); }
 }
@@ -23,7 +23,7 @@ export async function PUT(request: Request) {
     const invalid = values.find(isErrorResponse);
     if (invalid) return invalid;
     const db = getOperationsDb();
-    const existing = await db.select({ id: driverProfiles.id }).from(driverProfiles).where(eq(driverProfiles.userId, actor.userId)).get();
+    const [existing] = await db.select({ id: driverProfiles.id }).from(driverProfiles).where(eq(driverProfiles.userId, actor.userId)).limit(1);
     const profileValues = { phone, vehicleRegistration, vehicleType, updatedAt: new Date().toISOString() };
     const profile = existing
       ? (await db.update(driverProfiles).set(profileValues).where(eq(driverProfiles.id, existing.id)).returning())[0]

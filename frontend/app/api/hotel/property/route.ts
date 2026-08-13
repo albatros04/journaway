@@ -30,7 +30,7 @@ export async function PUT(request: Request) {
     const db = getOperationsDb();
     const propertyValues = { name, destination, city, address, contactPhone, updatedAt: new Date().toISOString() };
     if (propertyId) {
-      const membership = await db.select({ id: hotelPartnerMemberships.id }).from(hotelPartnerMemberships).where(and(eq(hotelPartnerMemberships.propertyId, propertyId), eq(hotelPartnerMemberships.userId, actor.userId))).get();
+      const [membership] = await db.select({ id: hotelPartnerMemberships.id }).from(hotelPartnerMemberships).where(and(eq(hotelPartnerMemberships.propertyId, propertyId), eq(hotelPartnerMemberships.userId, actor.userId))).limit(1);
       if (!membership) return Response.json({ error: "Property not found." }, { status: 404 });
       const [property] = await db.update(hotelProperties).set(propertyValues).where(eq(hotelProperties.id, propertyId)).returning();
       return Response.json({ property });

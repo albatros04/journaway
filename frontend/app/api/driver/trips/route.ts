@@ -6,7 +6,7 @@ export async function GET() {
   const actor = await requireApiActor("driver");
   if (isErrorResponse(actor)) return actor;
   try {
-    const profile = await getOperationsDb().select({ id: driverProfiles.id }).from(driverProfiles).where(eq(driverProfiles.userId, actor.userId)).get();
+    const [profile] = await getOperationsDb().select({ id: driverProfiles.id }).from(driverProfiles).where(eq(driverProfiles.userId, actor.userId)).limit(1);
     if (!profile) return Response.json({ trips: [], profileReady: false });
     const trips = await getOperationsDb().select().from(driverTrips).where(eq(driverTrips.driverProfileId, profile.id)).orderBy(desc(driverTrips.pickupAt));
     return Response.json({ trips, profileReady: true });

@@ -17,7 +17,7 @@ export async function verifyGoogleIdToken(token: string): Promise<GooglePayload>
   if (!headerPart || !payloadPart || !signaturePart || extra.length) throw new Error("Invalid sign-in credential.");
   const header = decodeJson<{ alg?: string; kid?: string }>(headerPart);
   if (header.alg !== "RS256" || !header.kid) throw new Error("Unsupported sign-in credential.");
-  const keyResponse = await fetch("https://www.googleapis.com/oauth2/v3/certs", { cf: { cacheTtl: 3600, cacheEverything: true } });
+  const keyResponse = await fetch("https://www.googleapis.com/oauth2/v3/certs");
   if (!keyResponse.ok) throw new Error("Google verification service is unavailable.");
   const keySet = await keyResponse.json() as { keys?: GoogleJwk[] };
   const key = keySet.keys?.find(item => item.kid === header.kid && item.kty === "RSA" && item.use === "sig");

@@ -1,11 +1,11 @@
 import { sql } from "drizzle-orm";
-import { foreignKey, index, integer, sqliteTable, text, uniqueIndex } from "drizzle-orm/sqlite-core";
+import { boolean, foreignKey, index, integer, pgTable, text, uniqueIndex } from "drizzle-orm/pg-core";
 
-const createdAt = text("created_at").notNull().default(sql`CURRENT_TIMESTAMP`);
-const updatedAt = text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP`);
+const createdAt = text("created_at").notNull().default(sql`CURRENT_TIMESTAMP::text`);
+const updatedAt = text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP::text`);
 
 /** A driver is linked to the authenticated ChatGPT identity, never a browser-supplied email alone. */
-export const driverProfiles = sqliteTable("driver_profiles", {
+export const driverProfiles = pgTable("driver_profiles", {
   id: text("id").primaryKey(),
   userId: text("user_id").notNull(),
   email: text("email").notNull(),
@@ -20,7 +20,7 @@ export const driverProfiles = sqliteTable("driver_profiles", {
   uniqueIndex("driver_profiles_email_unique").on(table.email),
 ]);
 
-export const hotelProperties = sqliteTable("hotel_properties", {
+export const hotelProperties = pgTable("hotel_properties", {
   id: text("id").primaryKey(),
   name: text("name").notNull(),
   destination: text("destination").notNull(),
@@ -33,7 +33,7 @@ export const hotelProperties = sqliteTable("hotel_properties", {
 });
 
 /** Maps a signed-in hotel partner to only the property or properties they may manage. */
-export const hotelPartnerMemberships = sqliteTable("hotel_partner_memberships", {
+export const hotelPartnerMemberships = pgTable("hotel_partner_memberships", {
   id: text("id").primaryKey(),
   propertyId: text("property_id").notNull(),
   userId: text("user_id").notNull(),
@@ -46,7 +46,7 @@ export const hotelPartnerMemberships = sqliteTable("hotel_partner_memberships", 
   index("hotel_partner_memberships_user_idx").on(table.userId),
 ]);
 
-export const hotelRooms = sqliteTable("hotel_rooms", {
+export const hotelRooms = pgTable("hotel_rooms", {
   id: text("id").primaryKey(),
   propertyId: text("property_id").notNull(),
   name: text("name").notNull(),
@@ -60,7 +60,7 @@ export const hotelRooms = sqliteTable("hotel_rooms", {
   index("hotel_rooms_property_idx").on(table.propertyId),
 ]);
 
-export const hotelBookings = sqliteTable("hotel_bookings", {
+export const hotelBookings = pgTable("hotel_bookings", {
   id: text("id").primaryKey(),
   bookingReference: text("booking_reference").notNull(),
   propertyId: text("property_id").notNull(),
@@ -82,7 +82,7 @@ export const hotelBookings = sqliteTable("hotel_bookings", {
   index("hotel_bookings_property_dates_idx").on(table.propertyId, table.checkInDate),
 ]);
 
-export const driverTrips = sqliteTable("driver_trips", {
+export const driverTrips = pgTable("driver_trips", {
   id: text("id").primaryKey(),
   bookingReference: text("booking_reference"),
   driverProfileId: text("driver_profile_id").notNull(),
@@ -100,7 +100,7 @@ export const driverTrips = sqliteTable("driver_trips", {
 ]);
 
 /** Admin-managed packages. Image choices are intentionally limited to approved Ladakh and Kashmir scenery. */
-export const tourPackages = sqliteTable("tour_packages", {
+export const tourPackages = pgTable("tour_packages", {
   id: text("id").primaryKey(),
   slug: text("slug").notNull(),
   name: text("name").notNull(),
@@ -120,7 +120,7 @@ export const tourPackages = sqliteTable("tour_packages", {
 ]);
 
 /** Google-authenticated customers are intentionally separate from internal operations identities. */
-export const customers = sqliteTable("customers", {
+export const customers = pgTable("customers", {
   id: text("id").primaryKey(),
   googleSubject: text("google_subject").notNull(),
   email: text("email").notNull(),
@@ -134,7 +134,7 @@ export const customers = sqliteTable("customers", {
   uniqueIndex("customers_email_unique").on(table.email),
 ]);
 
-export const customerSessions = sqliteTable("customer_sessions", {
+export const customerSessions = pgTable("customer_sessions", {
   id: text("id").primaryKey(),
   customerId: text("customer_id").notNull(),
   tokenHash: text("token_hash").notNull(),
@@ -146,7 +146,7 @@ export const customerSessions = sqliteTable("customer_sessions", {
   index("customer_sessions_customer_idx").on(table.customerId),
 ]);
 
-export const customPackages = sqliteTable("custom_packages", {
+export const customPackages = pgTable("custom_packages", {
   id: text("id").primaryKey(),
   customerId: text("customer_id").notNull(),
   name: text("name").notNull(),
@@ -157,7 +157,7 @@ export const customPackages = sqliteTable("custom_packages", {
   children: integer("children").notNull().default(0),
   experiencesJson: text("experiences_json").notNull().default("[]"),
   accommodationPreference: text("accommodation_preference", { enum: ["recommend", "none"] }).notNull().default("recommend"),
-  needsCab: integer("needs_cab", { mode: "boolean" }).notNull().default(false),
+  needsCab: boolean("needs_cab").notNull().default(false),
   budgetInr: integer("budget_inr"),
   status: text("status", { enum: ["draft", "submitted", "under_review", "quoted", "confirmed", "cancelled"] }).notNull().default("draft"),
   submittedAt: text("submitted_at"),
@@ -170,7 +170,7 @@ export const customPackages = sqliteTable("custom_packages", {
 ]);
 
 /** Idempotent server-side notification ledger. A unique event prevents duplicate customer email. */
-export const emailNotifications = sqliteTable("email_notifications", {
+export const emailNotifications = pgTable("email_notifications", {
   id: text("id").primaryKey(),
   eventKey: text("event_key").notNull(),
   customerId: text("customer_id"),
