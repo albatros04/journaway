@@ -8,6 +8,10 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    # Allows the locally-run frontend to reach PostgreSQL, without exposing it
+    # to the network on a production server.
+    ports:
+      - "127.0.0.1:5432:5432"
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 5s
@@ -25,12 +29,27 @@ services:
         condition: service_healthy
     restart: "no"
 
-  app:
+  backend:
+    build:
+      context: .
+      target: backend
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      FRONTEND_INTERNAL_URL: http://frontend:3000
+    depends_on:
+      - frontend
+    expose:
+      - "4000"
+
+  frontend:
     build:
       context: .
       target: app
     restart: unless-stopped
     env_file: .env
+    environment:
+      PORT: 3000
     depends_on:
       db:
         condition: service_healthy
@@ -45,7 +64,8 @@ services:
     environment:
       JOURNAWAY_DOMAIN: ${JOURNAWAY_DOMAIN}
     depends_on:
-      - app
+      - frontend
+      - backend
     ports:
       - "80:80"
       - "443:443"

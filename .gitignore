@@ -25,6 +25,8 @@
 # debug
 npm-debug.log*
 dev.log
+backend-dev.stdout.log
+backend-dev.stderr.log
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
@@ -50,5 +52,7 @@ yarn-error.log*
 /frontend/dist/
 /frontend/.wrangler/
 /frontend/.vite/
+/frontend/.netlify/
+/frontend/.output/
 /.vite/
 *.tsbuildinfo

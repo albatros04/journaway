@@ -1,4 +1,10 @@
 {$JOURNAWAY_DOMAIN} {
   encode zstd gzip
-  reverse_proxy app:3000
+  @api path /api/*
+  handle @api {
+    reverse_proxy backend:4000
+  }
+  handle {
+    reverse_proxy frontend:3000
+  }
 }

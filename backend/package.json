@@ -3,8 +3,10 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "dev": "node --watch server.mjs",
+    "start": "node server.mjs",
     "db:generate": "drizzle-kit generate --config drizzle.config.ts",
-    "db:migrate": "drizzle-kit migrate --config drizzle.config.ts"
+    "db:migrate": "node scripts/migrate.mjs"
   },
   "dependencies": {
     "drizzle-orm": "0.45.2",

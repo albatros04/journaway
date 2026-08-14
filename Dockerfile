@@ -26,3 +26,13 @@ ENV NODE_ENV=production \
 COPY --from=build /app/frontend/dist/standalone ./
 EXPOSE 3000
 CMD ["node", "server.js"]
+
+FROM node:22-alpine AS backend
+WORKDIR /app
+ENV NODE_ENV=production \
+    HOST=0.0.0.0 \
+    PORT=4000 \
+    FRONTEND_INTERNAL_URL=http://frontend:3000
+COPY backend/server.mjs ./server.mjs
+EXPOSE 4000
+CMD ["node", "server.mjs"]

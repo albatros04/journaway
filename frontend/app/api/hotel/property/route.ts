@@ -35,9 +35,6 @@ export async function PUT(request: Request) {
       const [property] = await db.update(hotelProperties).set(propertyValues).where(eq(hotelProperties.id, propertyId)).returning();
       return Response.json({ property });
     }
-    const id = crypto.randomUUID();
-    const [property] = await db.insert(hotelProperties).values({ id, ...propertyValues }).returning();
-    await db.insert(hotelPartnerMemberships).values({ id: crypto.randomUUID(), propertyId: id, userId: actor.userId, email: actor.email.toLowerCase(), role: "owner" });
-    return Response.json({ property }, { status: 201 });
+    return Response.json({ error: "Properties are created and assigned by JournAway operations." }, { status: 403 });
   } catch (error) { return jsonError(error); }
 }

@@ -2,7 +2,9 @@
   "name": "journaway",
   "private": true,
   "scripts": {
-    "dev": "npm --prefix frontend run dev",
+    "dev": "npm --prefix frontend run dev:frontend",
+    "dev:frontend": "npm --prefix frontend run dev:frontend",
+    "dev:backend": "npm --prefix backend run dev",
     "build": "npm --prefix frontend run build",
     "test": "npm --prefix frontend run test",
     "lint": "npm --prefix frontend run lint",

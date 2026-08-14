@@ -1,13 +1,15 @@
-import { getChatGPTUser, isAdminUser, isDriverUser, isHotelPartnerUser, type ChatGPTUser } from "@/app/chatgpt-auth";
+import { getChatGPTUser, type ChatGPTUser } from "@/app/chatgpt-auth";
+import { getAdminUser } from "@/lib/admin-auth";
+import { hasActiveOperationsRole } from "@/lib/operations-access";
 import { getDb } from "../../backend/db";
 
 export type OperationsRole = "admin" | "driver" | "hotel";
 
 export async function requireApiActor(role: OperationsRole): Promise<ChatGPTUser | Response> {
-  const user = await getChatGPTUser();
+  const user = role === "admin" ? await getAdminUser() : await getChatGPTUser();
   if (!user) return Response.json({ error: "Authentication is required." }, { status: 401 });
 
-  const allowed = role === "admin" ? isAdminUser(user) : role === "driver" ? isDriverUser(user) : isHotelPartnerUser(user);
+  const allowed = role === "admin" ? true : await hasActiveOperationsRole(user, role);
   if (!allowed) return Response.json({ error: "You are not authorized to access this resource." }, { status: 403 });
   return user;
 }

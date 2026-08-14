@@ -6,7 +6,7 @@ declare global { interface Window { google?: { accounts: { id: { initialize(conf
 
 export function GoogleSignIn({ returnTo = "/account" }: { returnTo?: string }) {
   const mount = useRef<HTMLDivElement>(null); const [message, setMessage] = useState(""); const [clientId, setClientId] = useState("");
-  useEffect(() => { fetch("/api/auth/config").then(response => response.json()).then(data => setClientId(data.googleClientId ?? "")).catch(() => setMessage("Google sign-in is not configured yet.")); }, []);
+  useEffect(() => { fetch("/api/auth/config").then(response => response.json()).then(data => { const id = data.googleClientId ?? ""; setClientId(id); if (!id) setMessage("Google sign-in is not configured yet."); }).catch(() => setMessage("Google sign-in is not configured yet.")); }, []);
   useEffect(() => {
     if (!clientId || !mount.current) return;
     setMessage("");

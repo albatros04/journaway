@@ -4,6 +4,26 @@ import { boolean, foreignKey, index, integer, pgTable, text, uniqueIndex } from 
 const createdAt = text("created_at").notNull().default(sql`CURRENT_TIMESTAMP::text`);
 const updatedAt = text("updated_at").notNull().default(sql`CURRENT_TIMESTAMP::text`);
 
+/**
+ * Portal access is approved by an administrator and persisted here. This lets
+ * JournAway onboard any number of drivers and hotel partners without secrets
+ * containing a growing list of email addresses.
+ */
+export const operationsAccounts = pgTable("operations_accounts", {
+  id: text("id").primaryKey(),
+  userId: text("user_id").notNull(),
+  email: text("email").notNull(),
+  displayName: text("display_name").notNull(),
+  role: text("role", { enum: ["driver", "hotel"] }).notNull(),
+  status: text("status", { enum: ["pending", "active", "suspended"] }).notNull().default("pending"),
+  createdAt,
+  updatedAt,
+}, table => [
+  uniqueIndex("operations_accounts_user_id_unique").on(table.userId),
+  uniqueIndex("operations_accounts_email_unique").on(table.email),
+  index("operations_accounts_role_status_idx").on(table.role, table.status),
+]);
+
 /** A driver is linked to the authenticated ChatGPT identity, never a browser-supplied email alone. */
 export const driverProfiles = pgTable("driver_profiles", {
   id: text("id").primaryKey(),
@@ -122,9 +142,10 @@ export const tourPackages = pgTable("tour_packages", {
 /** Google-authenticated customers are intentionally separate from internal operations identities. */
 export const customers = pgTable("customers", {
   id: text("id").primaryKey(),
-  googleSubject: text("google_subject").notNull(),
+  googleSubject: text("google_subject"),
   email: text("email").notNull(),
   displayName: text("display_name").notNull(),
+  passwordHash: text("password_hash"),
   profileImageUrl: text("profile_image_url"),
   phone: text("phone"),
   createdAt,

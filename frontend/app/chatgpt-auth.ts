@@ -1,6 +1,8 @@
 import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { getCustomerUser } from "@/lib/customer-auth";
+import { hasActiveOperationsRole } from "@/lib/operations-access";
+import { getAdminUser, requireAdmin as requirePasswordAdmin } from "@/lib/admin-auth";
 
 export type ChatGPTUser = {
   userId: string;
@@ -21,33 +23,6 @@ const CALLBACK_PATH = "/callback";
 const LOCAL_SESSION_COOKIE = "journaway_local_identity";
 
 type LocalDevelopmentUser = Pick<ChatGPTUser, "userId" | "email" | "fullName">;
-
-function configuredAdminEmails(): Set<string> {
-  const value = process.env.JOURNAWAY_ADMIN_EMAILS ?? "";
-  return new Set(value.split(",").map(email => email.trim().toLowerCase()).filter(Boolean));
-}
-
-function configuredDriverEmails(): Set<string> {
-  const value = process.env.JOURNAWAY_DRIVER_EMAILS ?? "";
-  return new Set(value.split(",").map(email => email.trim().toLowerCase()).filter(Boolean));
-}
-
-function configuredHotelPartnerEmails(): Set<string> {
-  const value = process.env.JOURNAWAY_HOTEL_PARTNER_EMAILS ?? "";
-  return new Set(value.split(",").map(email => email.trim().toLowerCase()).filter(Boolean));
-}
-
-export function isAdminUser(user: ChatGPTUser): boolean {
-  return configuredAdminEmails().has(user.email.toLowerCase());
-}
-
-export function isDriverUser(user: ChatGPTUser): boolean {
-  return configuredDriverEmails().has(user.email.toLowerCase());
-}
-
-export function isHotelPartnerUser(user: ChatGPTUser): boolean {
-  return configuredHotelPartnerEmails().has(user.email.toLowerCase());
-}
 
 export async function getChatGPTUser(): Promise<ChatGPTUser | null> {
   const requestHeaders = await headers();
@@ -95,7 +70,7 @@ export function localDevelopmentAuthEnabled(): boolean {
 
 export function configuredLocalDevelopmentUser(): LocalDevelopmentUser | null {
   if (!localDevelopmentAuthEnabled()) return null;
-  const email = process.env.JOURNAWAY_LOCAL_AUTH_EMAIL?.trim().toLowerCase() ?? [...configuredAdminEmails()][0];
+  const email = process.env.JOURNAWAY_LOCAL_AUTH_EMAIL?.trim().toLowerCase();
   if (!email) return null;
   return {
     userId: process.env.JOURNAWAY_LOCAL_AUTH_USER_ID?.trim() || `local:${email}`,
@@ -127,23 +102,19 @@ async function getLocalDevelopmentUser(): Promise<LocalDevelopmentUser | null> {
  * a comma-separated list of authenticated identity emails before enabling the
  * admin routes in production.
  */
-export async function requireAdmin(returnTo: string): Promise<ChatGPTUser> {
-  const user = await requireChatGPTUser(returnTo);
-  if (!isAdminUser(user)) redirect("/admin-access-denied");
-  return user;
-}
+export { getAdminUser, requirePasswordAdmin as requireAdmin };
 
 /** Server-side, fail-closed driver guard backed by an explicit allowlist. */
 export async function requireDriver(returnTo: string): Promise<ChatGPTUser> {
   const user = await requireChatGPTUser(returnTo);
-  if (!isDriverUser(user)) redirect("/driver-access-denied");
+  if (!await hasActiveOperationsRole(user, "driver")) redirect("/driver-access-denied");
   return user;
 }
 
 /** Server-side, fail-closed hotel-partner guard backed by an explicit allowlist. */
 export async function requireHotelPartner(returnTo: string): Promise<ChatGPTUser> {
   const user = await requireChatGPTUser(returnTo);
-  if (!isHotelPartnerUser(user)) redirect("/hotel-access-denied");
+  if (!await hasActiveOperationsRole(user, "hotel")) redirect("/hotel-access-denied");
   return user;
 }
 
