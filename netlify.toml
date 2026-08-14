@@ -1,5 +1,9 @@
 [build]
   base = "frontend"
+  # Nitro's Netlify manifest serves the generated browser assets from dist.
+  # Publishing source frontend files causes CSS and JavaScript requests to fall
+  # through to SSR, leaving the live site unstyled.
+  publish = "dist"
   # The App Router's server routes use the shared database module in ../backend.
   # Netlify installs dependencies from the base directory only, so install the
   # backend runtime dependencies before creating the server functions.
