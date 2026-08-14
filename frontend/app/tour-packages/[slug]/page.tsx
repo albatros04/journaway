@@ -13,7 +13,7 @@ export default async function PackageDetailPage({ params }: { params: Promise<{ 
   const { slug } = await params;
   let managedPackage: ManagedPackage | undefined;
   try {
-    [managedPackage] = await getOperationsDb().select().from(tourPackages).where(and(eq(tourPackages.slug, slug), eq(tourPackages.status, "published"), gt(tourPackages.priceInr, 0))).limit(1);
+    [managedPackage] = await getOperationsDb().select().from(tourPackages).where(and(eq(tourPackages.slug, slug), eq(tourPackages.catalogType, "package"), eq(tourPackages.status, "published"), gt(tourPackages.priceInr, 0))).limit(1);
   } catch { /* Preserve source-defined details if D1 is unavailable. */ }
   if (managedPackage) return <PackageDetail detailBase="/tour-packages" tour={{ slug: managedPackage.slug, name: managedPackage.name, destination: managedPackage.destination, duration: managedPackage.duration, description: managedPackage.description, image: packageImages[managedPackage.imageKey], priceInr: managedPackage.priceInr }} />;
   const tour = getTourBySlug(slug);

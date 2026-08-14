@@ -1,10 +1,11 @@
-import { desc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { tourPackages } from "../../../../../backend/db/schema";
 import { getOperationsDb, isErrorResponse, jsonError, positiveInteger, requiredText, requireApiActor } from "@/lib/operations-api";
 
 const destinations = new Set(["Ladakh", "Kashmir"]);
 const imageKeys = new Set(["ladakh-high-pass", "pangong-lake", "pahalgam-valley", "gulmarg-snow"]);
 const statuses = new Set(["draft", "published"]);
+const catalogTypes = new Set(["tour", "package"]);
 
 type PackageInput = { slug: string; name: string; destination: "Ladakh" | "Kashmir"; duration: string; priceInr: number; description: string; imageKey: "ladakh-high-pass" | "pangong-lake" | "pahalgam-valley" | "gulmarg-snow"; status: "draft" | "published" };
 
@@ -26,10 +27,13 @@ function packageInput(body: Record<string, unknown>): PackageInput | Response {
   return { slug, name, destination: destination as PackageInput["destination"], duration, priceInr, description, imageKey: imageKey as PackageInput["imageKey"], status: status as PackageInput["status"] };
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   const actor = await requireApiActor("admin");
   if (isErrorResponse(actor)) return actor;
-  try { return Response.json({ packages: await getOperationsDb().select().from(tourPackages).orderBy(desc(tourPackages.updatedAt)) }); }
+  try {
+    const catalogType = new URL(request.url).searchParams.get("catalogType");
+    return Response.json({ packages: catalogTypes.has(catalogType ?? "") ? await getOperationsDb().select().from(tourPackages).where(eq(tourPackages.catalogType, catalogType as "tour" | "package")).orderBy(desc(tourPackages.updatedAt)) : await getOperationsDb().select().from(tourPackages).orderBy(desc(tourPackages.updatedAt)) });
+  }
   catch (error) { return jsonError(error); }
 }
 
@@ -37,9 +41,11 @@ export async function POST(request: Request) {
   const actor = await requireApiActor("admin");
   if (isErrorResponse(actor)) return actor;
   try {
-    const input = packageInput(await request.json() as Record<string, unknown>);
+    const body = await request.json() as Record<string, unknown>;
+    const input = packageInput(body);
     if (isErrorResponse(input)) return input;
-    const [tourPackage] = await getOperationsDb().insert(tourPackages).values({ id: crypto.randomUUID(), ...input, createdByUserId: actor.userId, updatedByUserId: actor.userId }).returning();
+    const catalogType = typeof body.catalogType === "string" && catalogTypes.has(body.catalogType) ? body.catalogType as "tour" | "package" : "package";
+    const [tourPackage] = await getOperationsDb().insert(tourPackages).values({ id: crypto.randomUUID(), ...input, catalogType, createdByUserId: actor.userId, updatedByUserId: actor.userId }).returning();
     return Response.json({ package: tourPackage }, { status: 201 });
   } catch (error) { return jsonError(error); }
 }

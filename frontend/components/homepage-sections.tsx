@@ -1,11 +1,15 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { CabSearch } from "./forms";
-import { destinations, services, showcaseTours, categoryLabels } from "./site-data";
+import { destinations, services, categoryLabels } from "./site-data";
 import { Button, DestinationCard, GlassPanel, TourCard } from "./ui";
 
 const roadImage = "https://images.unsplash.com/photo-1626621341517-bbf3d9990a23?auto=format&fit=crop&w=1800&q=88";
 const kashmirImage = "https://images.unsplash.com/photo-1598091383021-15ddea10925d?auto=format&fit=crop&w=1800&q=88";
 
-export function PopularTours() { return <section className="home-section popular-tours"><div className="container"><div className="section-title"><div><p className="eyebrow">Popular tours</p><h2>Trips worth taking.</h2></div><Button href="/tour-packages" variant="ghost">View all packages</Button></div><div className="tour-grid">{showcaseTours.map(tour => <TourCard tour={tour} key={tour.name} />)}</div></div></section>; }
+type ManagedTour = { slug: string; destination: string; name: string; duration: string; image: string; priceInr: number };
+export function PopularTours() { const [tours, setTours] = useState<ManagedTour[]>([]); useEffect(() => { fetch("/api/packages?catalogType=tour").then(response => response.ok ? response.json() as Promise<{ packages: ManagedTour[] }> : { packages: [] }).then(data => setTours(data.packages.slice(0, 3))).catch(() => setTours([])); }, []); return <section className="home-section popular-tours"><div className="container"><div className="section-title"><div><p className="eyebrow">Popular tours</p><h2>Trips worth taking.</h2></div><Button href="/tours" variant="ghost">View all tours</Button></div>{tours.length ? <div className="tour-grid">{tours.map(tour => <TourCard tour={tour} key={tour.slug} />)}</div> : <p className="operations-notice">Explore our current Ladakh and Kashmir journeys.</p>}</div></section>; }
 
 export function DestinationShowcase() { return <section className="home-section destination-showcase"><div className="container"><div className="section-title"><div><p className="eyebrow">Explore destinations</p><h2>Landscapes that stay <em>with you.</em></h2></div><Button href="/tours" variant="ghost">See all tours</Button></div><div className="destination-mosaic">{destinations.map((destination, index) => <div className={index === 0 ? "destination-feature" : ""} key={destination.name}><DestinationCard destination={destination} /></div>)}</div></div></section>; }
 

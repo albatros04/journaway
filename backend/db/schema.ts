@@ -130,6 +130,7 @@ export const tourPackages = pgTable("tour_packages", {
   description: text("description").notNull(),
   imageKey: text("image_key", { enum: ["ladakh-high-pass", "pangong-lake", "pahalgam-valley", "gulmarg-snow"] }).notNull(),
   status: text("status", { enum: ["draft", "published"] }).notNull().default("draft"),
+  catalogType: text("catalog_type", { enum: ["tour", "package"] }).notNull().default("package"),
   createdByUserId: text("created_by_user_id").notNull(),
   updatedByUserId: text("updated_by_user_id").notNull(),
   createdAt,
@@ -137,6 +138,7 @@ export const tourPackages = pgTable("tour_packages", {
 }, table => [
   uniqueIndex("tour_packages_slug_unique").on(table.slug),
   index("tour_packages_status_updated_idx").on(table.status, table.updatedAt),
+  index("tour_packages_catalog_status_idx").on(table.catalogType, table.status),
 ]);
 
 /** Google-authenticated customers are intentionally separate from internal operations identities. */
