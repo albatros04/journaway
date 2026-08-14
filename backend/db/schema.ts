@@ -213,6 +213,14 @@ export const enquiries = pgTable("enquiries", {
   index("enquiries_type_created_idx").on(table.type, table.createdAt),
 ]);
 
+/** Hashed, short-lived abuse counters for public enquiry forms; no raw IP address is stored. */
+export const enquiryRateLimits = pgTable("enquiry_rate_limits", {
+  key: text("key").primaryKey(),
+  windowStartedAt: text("window_started_at").notNull(),
+  attempts: integer("attempts").notNull().default(1),
+  updatedAt,
+});
+
 /** Idempotent server-side notification ledger. A unique event prevents duplicate customer email. */
 export const emailNotifications = pgTable("email_notifications", {
   id: text("id").primaryKey(),

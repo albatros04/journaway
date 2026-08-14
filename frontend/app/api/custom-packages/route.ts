@@ -7,7 +7,7 @@ import { getOperationsDb, isErrorResponse, isoDate, jsonError, optionalText, pos
 
 const experienceOptions = new Set(["Adventure", "Mountains", "Honeymoon", "Family"]);
 
-function unauthorized() { return Response.json({ error: "Sign in with Google to save your custom trip." }, { status: 401 }); }
+function unauthorized() { return Response.json({ error: "Create an account or log in to save your custom trip." }, { status: 401 }); }
 
 function parseInput(body: Record<string, unknown>) {
   const destinationSlug = requiredText(body.destinationSlug, "destination", 80);

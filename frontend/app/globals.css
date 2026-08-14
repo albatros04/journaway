@@ -53,6 +53,8 @@ main { background:radial-gradient(circle at 100% 0,rgba(221,233,223,.65),transpa
 @media (max-width:720px) { .homepage .discovery-wrap { margin-top:0; padding-top:18px; padding-bottom:0; } }
 
 .hotel-request label,.cab-enquiry-next label { display:grid; gap:7px; color:var(--stone); font:700 .62rem "Manrope",sans-serif; letter-spacing:.08em; text-transform:uppercase; }.hotel-request input,.hotel-request textarea,.cab-enquiry-next input { width:100%; min-height:45px; padding:10px 0; border:0; border-bottom:1px solid var(--line); border-radius:0; outline:0; background:transparent; color:var(--ink); font:600 .85rem "DM Sans",sans-serif; text-transform:none; letter-spacing:0; }.hotel-request textarea { resize:vertical; }.hotel-request input:focus,.hotel-request textarea:focus,.cab-enquiry-next input:focus { border-color:var(--terracotta); }.cab-enquiry-next .form-grid { min-width:min(100%,480px); margin:0; }
+.form-honeypot { position:absolute !important; width:1px !important; height:1px !important; overflow:hidden !important; clip:rect(0 0 0 0) !important; white-space:nowrap !important; }
+.enquiry-auth-gate { padding:26px; border:1px solid rgba(22,58,43,.16); border-radius:14px; background:rgba(248,250,246,.92); }.enquiry-auth-gate h3 { margin:8px 0; color:var(--forest); }.enquiry-auth-gate>p:not(.eyebrow) { max-width:520px; margin:0 0 19px; color:#637066; line-height:1.6; }
 
 /* Shared frosted-glass navigation, including image-led hero pages. */
 .site-header { background:rgba(246,244,236,.72); border-bottom-color:rgba(255,255,255,.5); box-shadow:0 12px 32px rgba(10,42,29,.1),inset 0 1px 0 rgba(255,255,255,.5); backdrop-filter:blur(20px) saturate(145%); -webkit-backdrop-filter:blur(20px) saturate(145%); }
