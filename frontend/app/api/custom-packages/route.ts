@@ -2,7 +2,7 @@ import { desc, eq } from "drizzle-orm";
 import { customPackages } from "../../../../backend/db/schema";
 import { destinations } from "@/components/site-data";
 import { getCustomerUser } from "@/lib/customer-auth";
-import { sendCustomPackageReceivedEmail } from "@/lib/email-service";
+import { sendCustomPackageAdminNotification, sendCustomPackageReceivedEmail } from "@/lib/email-service";
 import { getOperationsDb, isErrorResponse, isoDate, jsonError, optionalText, positiveInteger, requiredText } from "@/lib/operations-api";
 
 const experienceOptions = new Set(["Adventure", "Mountains", "Honeymoon", "Family"]);
@@ -31,7 +31,8 @@ export async function POST(request: Request) {
   try {
     const input = parseInput(await request.json() as Record<string, unknown>); if (isErrorResponse(input)) return input;
     const now = new Date().toISOString(); const [customPackage] = await getOperationsDb().insert(customPackages).values({ id: crypto.randomUUID(), customerId: customer.id, ...input, status: "submitted", submittedAt: now }).returning();
-    try { await sendCustomPackageReceivedEmail({ ...customPackage, destination: destinations.find(destination => destination.slug === customPackage.destinationSlug)?.name ?? customPackage.destinationSlug }, customer.email); } catch (error) { console.error("Custom package was saved but acknowledgement email could not be queued", error); }
+    const emailInput = { ...customPackage, destination: destinations.find(destination => destination.slug === customPackage.destinationSlug)?.name ?? customPackage.destinationSlug };
+    try { await Promise.all([sendCustomPackageReceivedEmail(emailInput, customer.email), sendCustomPackageAdminNotification(emailInput, customer.email)]); } catch (error) { console.error("Custom package was saved but email notifications could not be queued", error); }
     return Response.json({ package: customPackage }, { status: 201 });
   } catch (error) { return jsonError(error); }
 }

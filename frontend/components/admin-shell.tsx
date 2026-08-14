@@ -10,6 +10,7 @@ const navigation = [
   { href: "/admin", label: "Overview" },
   { href: "/admin/packages", label: "Manage packages" },
   { href: "/admin/custom-packages", label: "Custom packages" },
+  { href: "/admin/enquiries", label: "Enquiries" },
   { href: "/admin/access", label: "Portal access" },
   { href: "/admin/tours", label: "Tours & packages" },
   { href: "/admin/destinations", label: "Destinations" },

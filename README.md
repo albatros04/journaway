@@ -65,5 +65,6 @@ For a staging server, set `JOURNAWAY_DOMAIN=staging.journaway.in` in `.env`; for
 - Use a long unique `POSTGRES_PASSWORD` and keep `.env` private.
 - Add the deployed HTTPS URL to Google OAuth Authorized JavaScript origins.
 - Verify `journaway.in` in Resend and set a verified `EMAIL_FROM` sender.
+- Set `JOURNAWAY_ENQUIRY_EMAILS` to the comma-separated email address(es) that should receive new custom-trip enquiries.
 - Approve driver and hotel-partner access requests from the admin portal.
 - Back up the `postgres_data` volume before upgrades.

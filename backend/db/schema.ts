@@ -190,6 +190,29 @@ export const customPackages = pgTable("custom_packages", {
   index("custom_packages_status_updated_idx").on(table.status, table.updatedAt),
 ]);
 
+/** Public contact, cab, and hotel requests. These are kept separate from confirmed bookings. */
+export const enquiries = pgTable("enquiries", {
+  id: text("id").primaryKey(),
+  type: text("type", { enum: ["contact", "cab", "hotel"] }).notNull(),
+  service: text("service"),
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  phone: text("phone").notNull(),
+  destination: text("destination"),
+  pickupLocation: text("pickup_location"),
+  dropoffLocation: text("dropoff_location"),
+  travelStartDate: text("travel_start_date"),
+  travelEndDate: text("travel_end_date"),
+  guests: integer("guests"),
+  message: text("message"),
+  status: text("status", { enum: ["new", "in_progress", "closed"] }).notNull().default("new"),
+  createdAt,
+  updatedAt,
+}, table => [
+  index("enquiries_status_updated_idx").on(table.status, table.updatedAt),
+  index("enquiries_type_created_idx").on(table.type, table.createdAt),
+]);
+
 /** Idempotent server-side notification ledger. A unique event prevents duplicate customer email. */
 export const emailNotifications = pgTable("email_notifications", {
   id: text("id").primaryKey(),
