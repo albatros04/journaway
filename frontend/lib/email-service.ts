@@ -24,7 +24,10 @@ async function sendCustomPackageEmail(input: CustomPackageEmailInput, recipientE
   const [notification] = await db.insert(emailNotifications).values({ id: crypto.randomUUID(), eventKey, customerId: input.customerId, recipientEmail, subject }).onConflictDoNothing().returning();
   if (!notification) return;
   try {
-    if (process.env.EMAIL_PROVIDER?.toLowerCase() !== "resend") throw new Error("No supported email provider is configured.");
+    // Resend is JournAway's supported production provider. Keeping it as the
+    // default avoids requiring a non-secret provider-name variable in hosts
+    // that scan all environment values for accidental disclosure.
+    if ((process.env.EMAIL_PROVIDER ?? "resend").toLowerCase() !== "resend") throw new Error("No supported email provider is configured.");
     const apiKey = process.env.RESEND_API_KEY?.trim(); const from = process.env.EMAIL_FROM?.trim();
     if (!apiKey || !from) throw new Error("Resend email configuration is incomplete.");
     const response = await fetch("https://api.resend.com/emails", { method: "POST", headers: { Authorization: `Bearer ${apiKey}`, "content-type": "application/json" }, body: JSON.stringify({ from, to: [recipientEmail], subject, html: customPackageHtml(input, status, heading), text: `${heading} ${input.name}. Destination: ${input.destination}. Travel dates: ${input.travelStartDate} to ${input.travelEndDate}. Status: ${status}.` }) });
