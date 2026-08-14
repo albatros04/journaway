@@ -23,8 +23,8 @@ The former local Cloudflare D1 state is not used by the self-hosted deployment. 
 
 The frontend is configured to build as Netlify server functions, including the
 App Router API routes. In Netlify, import the repository and keep the build
-settings from `netlify.toml` (base directory `frontend`, command
-`npm run build:netlify`).
+settings from `netlify.toml` (base directory `frontend`; the configured build
+installs the sibling backend dependencies before running `npm run build:netlify`).
 
 Before the first deploy, create a managed PostgreSQL database and add its
 connection string and the values from

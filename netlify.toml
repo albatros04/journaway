@@ -1,6 +1,9 @@
 [build]
   base = "frontend"
-  command = "npm run build:netlify"
+  # The App Router's server routes use the shared database module in ../backend.
+  # Netlify installs dependencies from the base directory only, so install the
+  # backend runtime dependencies before creating the server functions.
+  command = "npm ci --prefix ../backend && npm run build:netlify"
 
 [build.environment]
   NODE_VERSION = "22"
