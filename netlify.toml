@@ -12,3 +12,7 @@
 [build.environment]
   NODE_VERSION = "22"
   NITRO_PRESET = "netlify"
+  # The administrator username is an identifier, not a credential. Netlify's
+  # scanner can mistake a common value such as "admin" for a source leak.
+  # Passwords, session secrets, database URLs, and API keys remain scanned.
+  SECRETS_SCAN_OMIT_KEYS = "JOURNAWAY_ADMIN_USERNAME"
