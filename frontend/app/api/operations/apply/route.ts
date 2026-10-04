@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import { getChatGPTUser } from "@/app/chatgpt-auth";
 import { getOperationsDb, jsonError } from "@/lib/operations-api";
 import { operationsAccounts } from "../../../../../backend/db/schema";
+import { sendAccessRequestAdminNotification } from "@/lib/email-service";
 
 export async function POST(request: Request) {
   const user = await getChatGPTUser();
@@ -18,6 +19,7 @@ export async function POST(request: Request) {
     const [account] = await db.insert(operationsAccounts).values({
       id: crypto.randomUUID(), userId: user.userId, email: user.email.toLowerCase(), displayName: user.displayName, role: body.role, status: "pending",
     }).returning();
+    try { await sendAccessRequestAdminNotification(account); } catch (error) { console.error("Access request was saved but admin email could not be queued", error); }
     return Response.json({ account, created: true }, { status: 201 });
   } catch (error) { return jsonError(error); }
 }

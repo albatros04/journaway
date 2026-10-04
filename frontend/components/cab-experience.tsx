@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 
 import { services } from "./site-data";
 import { Button } from "./ui";
@@ -21,7 +21,7 @@ export function CabExperience({ initialTrip = { pickup: "", drop: "", date: "" }
   const [showReview, setShowReview] = useState(Boolean(initialTrip.pickup && initialTrip.drop));
   const [enquiryMessage, setEnquiryMessage] = useState("");
   const [sendingEnquiry, setSendingEnquiry] = useState(false);
-  const formStartedAt = useRef(Date.now());
+  const [formStartedAt] = useState(() => Date.now());
 
   function update(field: keyof TripDetails, value: string) { setTrip(current => ({ ...current, [field]: value })); }
   function swapLocations() { setTrip(current => ({ ...current, pickup: current.drop, drop: current.pickup })); }
@@ -35,7 +35,7 @@ export function CabExperience({ initialTrip = { pickup: "", drop: "", date: "" }
     event.preventDefault(); setSendingEnquiry(true); setEnquiryMessage("");
     const form = event.currentTarget; const data = new FormData(form);
     try {
-      const response = await fetch("/api/enquiries", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ type: "cab", name: data.get("name"), email: data.get("email"), phone: data.get("phone"), pickupLocation: trip.pickup, dropoffLocation: trip.drop, travelStartDate: trip.date, website: data.get("website"), formStartedAt: formStartedAt.current }) });
+      const response = await fetch("/api/enquiries", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ type: "cab", name: data.get("name"), email: data.get("email"), phone: data.get("phone"), pickupLocation: trip.pickup, dropoffLocation: trip.drop, travelStartDate: trip.date, website: data.get("website"), formStartedAt }) });
       const body = await response.json() as { error?: string };
       if (!response.ok) throw new Error(body.error ?? "Unable to send your cab enquiry.");
       form.reset(); setEnquiryMessage("Your cab enquiry has been sent to the JournAway team. We’ll contact you with the right vehicle and fare.");

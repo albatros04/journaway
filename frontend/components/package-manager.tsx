@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { formatInr } from "@/lib/package-images";
 
 type ImageKey = "ladakh-high-pass" | "pangong-lake" | "pahalgam-valley" | "gulmarg-snow";
@@ -20,8 +20,8 @@ async function api<T>(url: string, init?: RequestInit): Promise<T> {
 
 export function PackageManager({ catalogType = "package" }: { catalogType?: "tour" | "package" }) {
   const [packages, setPackages] = useState<TourPackage[]>([]); const [form, setForm] = useState<FormState>(initialForm); const [editingId, setEditingId] = useState<string | null>(null); const [message, setMessage] = useState("Loading packages…"); const [busy, setBusy] = useState(false);
-  const load = () => api<{ packages: TourPackage[] }>(`/api/admin/packages?catalogType=${catalogType}`).then(data => { setPackages(data.packages); setMessage(""); }).catch(error => setMessage(error instanceof Error ? error.message : "Unable to load packages."));
-  useEffect(() => { load(); }, []);
+  const load = useCallback(() => api<{ packages: TourPackage[] }>(`/api/admin/packages?catalogType=${catalogType}`).then(data => { setPackages(data.packages); setMessage(""); }).catch(error => setMessage(error instanceof Error ? error.message : "Unable to load packages.")), [catalogType]);
+  useEffect(() => { load(); }, [load]);
   const update = <K extends keyof FormState>(field: K, value: FormState[K]) => setForm(current => ({ ...current, [field]: value }));
   const reset = () => { setForm(initialForm); setEditingId(null); };
   const save = async (event: React.FormEvent<HTMLFormElement>) => { event.preventDefault(); setBusy(true); try { await api(editingId ? `/api/admin/packages/${editingId}` : "/api/admin/packages", { method: editingId ? "PUT" : "POST", body: JSON.stringify({ ...form, catalogType }) }); setMessage(editingId ? "Package updated." : "Package created."); reset(); load(); } catch (error) { setMessage(error instanceof Error ? error.message : "Unable to save package."); } finally { setBusy(false); } };

@@ -172,6 +172,7 @@ export const customerSessions = pgTable("customer_sessions", {
 export const customPackages = pgTable("custom_packages", {
   id: text("id").primaryKey(),
   customerId: text("customer_id").notNull(),
+  sourcePackageSlug: text("source_package_slug"),
   name: text("name").notNull(),
   destinationSlug: text("destination_slug").notNull(),
   travelStartDate: text("travel_start_date").notNull(),
@@ -220,6 +221,18 @@ export const enquiryRateLimits = pgTable("enquiry_rate_limits", {
   key: text("key").primaryKey(),
   windowStartedAt: text("window_started_at").notNull(),
   attempts: integer("attempts").notNull().default(1),
+  updatedAt,
+});
+
+/** Saved itinerary draft and immutable PDF snapshot approved for this customer. */
+export const tripDocuments = pgTable("trip_documents", {
+  tripId: text("trip_id").primaryKey().references(() => customPackages.id, { onDelete: "cascade" }),
+  revision: integer("revision").notNull().default(1),
+  detailsJson: text("details_json").notNull(),
+  confirmedPdfBase64: text("confirmed_pdf_base64"),
+  confirmedAt: text("confirmed_at"),
+  confirmedCustomerName: text("confirmed_customer_name"),
+  confirmedCustomerEmail: text("confirmed_customer_email"),
   updatedAt,
 });
 

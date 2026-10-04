@@ -56,3 +56,6 @@ yarn-error.log*
 /frontend/.output/
 /.vite/
 *.tsbuildinfo
+/tmp/
+/frontend/.test-artifacts/
+/output/

@@ -12,18 +12,24 @@
     "build:netlify": "vite build",
     "start": "vinext start",
     "test": "npm run build && node --test tests/rendered-html.test.mjs",
+    "test:trip-pdf": "node --import tsx --test tests/trip-document.test.mts",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next --ignore-pattern .netlify --ignore-pattern .output",
     "build:vinext": "vinext build",
     "start:vinext": "vinext start"
   },
   "dependencies": {
+    "@pdf-lib/fontkit": "^1.1.1",
+    "@types/nodemailer": "^6.4.24",
     "drizzle-orm": "0.45.2",
+    "nodemailer": "^7.0.13",
+    "pdf-lib": "^1.17.1",
     "postgres": "^3.4.9",
     "react": "19.2.6",
     "react-dom": "19.2.6"
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "1.37.1",
+    "@electric-sql/pglite": "^0.5.8",
     "@eslint/js": "9.39.4",
     "@next/eslint-plugin-next": "16.2.6",
     "@tailwindcss/postcss": "4.2.1",
@@ -42,6 +48,7 @@
     "nitro": "^3.0.260610-beta",
     "react-server-dom-webpack": "19.2.6",
     "tailwindcss": "4.2.1",
+    "tsx": "^4.23.15",
     "typescript": "5.9.3",
     "typescript-eslint": "8.59.3",
     "vinext": "^1.0.0-beta.5",
